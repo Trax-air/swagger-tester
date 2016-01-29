@@ -46,7 +46,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 swagger-tester tests
+	flake8 swagger_tester tests
 
 test:
 	python setup.py test
@@ -55,15 +55,15 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source swagger-tester setup.py test
+	coverage run --source swagger_tester setup.py test
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
 docs:
-	rm -f docs/swagger-tester.rst
+	rm -f docs/swagger_tester.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ swagger-tester
+	sphinx-apidoc -o docs/ swagger_tester
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
