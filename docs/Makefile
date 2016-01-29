@@ -85,17 +85,17 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/swagger-tester.qhcp"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/swagger_tester.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/swagger-tester.qhc"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/swagger_tester.qhc"
 
 devhelp:
 	$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
 	@echo
 	@echo "Build finished."
 	@echo "To view the help file:"
-	@echo "# mkdir -p $$HOME/.local/share/devhelp/swagger-tester"
-	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/swagger-tester"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/swagger_tester"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/swagger_tester"
 	@echo "# devhelp"
 
 epub:
