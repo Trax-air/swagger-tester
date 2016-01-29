@@ -5,7 +5,9 @@
 swagger-tester
 ==============
 
-Swagger-tester will test automatically your swagger API. Currently only swagger API made with connexion are supported.
+Swagger-tester will test automatically your swagger API. Currently only swagger API made with connexion (https://github.com/zalando/connexion) are supported.
+
+To run the test, swagger-tester will start a flask test server of your API. Then it will detect every path and actions of your API. And for each, it will send a request and check if the response match the swagger file specification.
 
 Example Usage
 -------------
