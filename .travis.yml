@@ -1,0 +1,19 @@
+language: python
+env:
+- TOXENV=py34
+- TOXENV=py33
+- TOXENV=py27
+- TOXENV=py26
+- TOXENV=pypy
+install: pip install -U tox
+script: tox
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: cyprieng
+  password:
+    secure: XITH5fCPmchCp8C2DHaQJYZfsgDSLnicVpZ7EYW/hh+UHvwTwtk/ueAypi38wt0lzciL61t2Z2YPTjQJchOtUGPGQ3FwMiqMHS4+W0H2aj45jPWttJ3yqvP7k9eEqjUeDJHUX8J3HK6JkofFnVJjxCiUUmsP30U7tF1oWqcHoI/fUlH0H6rJJLT0So/1q1BqWnxtvxhPcUsiV6R1A6Eo/tBu84NtIBZfTtcFVyUEWhgCGhJFnN0Gcm1irWiO5bWSA0AJz/YhRujVzssp7ccVZExxmu4A1zwKO0f8z6NUoDIkDZU9eQze9AfB2b24NWaYwCV8DpIGbvJZabKfxbDm1D9BI/Kjfzj5Pl7NLN+RrB3kya8fuFkm8jniuRfW9FI7zgmtm7s5kJLxu+2mXcVaagcXx3Qp8a7z4kOsxB2DMqUxuBqz46NYk8CYTgSFDY3per8DS0vIzdOItYVyNv6jiqCUhJ0+ybYJQTSE8dz5Sw0Kziv9A4PTDl1zaHDJTGCNrO3U30nhsSLAbXeWsSxOXGoO1ZUlciz3XxqrPn6NFIJaQh2EYx5xXb9jkPIOBtlLJ/jzGZdwxgYEr7Fy3EQQtf64rQxp2H/ffjOHkUPNCxdGGW43XLCm1AW+l7rxRmXa24Eo+SzviWVrq8AtePmGm40Gxf2VdOAbXoScHr8a/+g=
+  on:
+    tags: true
+    repo: Trax-air/swagger-tester
+    condition: $TOXENV == py27

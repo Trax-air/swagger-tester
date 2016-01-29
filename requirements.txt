@@ -1,0 +1,2 @@
+swagger-parser==0.1
+connexion==1.0.37
