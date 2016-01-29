@@ -1,3 +1,7 @@
+.. image:: https://travis-ci.org/Trax-air/swagger-tester.svg?branch=master
+   :alt: Travis status
+   :target: https://travis-ci.org/Trax-air/swagger-tester
+
 swagger-tester
 ==============
 
