@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import requests
 import time
 
 try:
@@ -158,11 +159,15 @@ def get_method_from_action(client, action):
         return client.patch
 
 
-def swagger_test(swagger_yaml_path, authorize_error=None, wait_between_test=False):
+def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None, wait_between_test=False):
     """Test the given swagger api.
+
+    Test with either a swagger.yaml path for a connexion app or with an API
+    URL if you have a running API.
 
     Args:
         swagger_yaml_path: path of your YAML swagger file.
+        app_url: URL of the swagger api.
         authorize_error: dict containing the error you don't want to raise.
                          ex: {
                             'get': {
@@ -171,18 +176,26 @@ def swagger_test(swagger_yaml_path, authorize_error=None, wait_between_test=Fals
                          }
                          Will ignore 404 when getting a pet.
         wait_between_test: wait between tests (useful if you use ES).
+
+    Raises:
+        ValueError: In case you specify neither a swagger.yaml path or an app URL.
     """
-    for _ in swagger_test_yield(swagger_yaml_path,
+    for _ in swagger_test_yield(swagger_yaml_path=swagger_yaml_path,
+                                app_url=app_url,
                                 authorize_error=authorize_error,
                                 wait_between_test=wait_between_test):
         pass
 
 
-def swagger_test_yield(swagger_yaml_path, authorize_error=None, wait_between_test=False):
+def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None, wait_between_test=False):
     """Test the given swagger api. Yield the action and operation done for each test.
+
+    Test with either a swagger.yaml path for a connexion app or with an API
+    URL if you have a running API.
 
     Args:
         swagger_yaml_path: path of your YAML swagger file.
+        app_url: URL of the swagger api.
         authorize_error: dict containing the error you don't want to raise.
                          ex: {
                             'get': {
@@ -194,16 +207,26 @@ def swagger_test_yield(swagger_yaml_path, authorize_error=None, wait_between_tes
 
     Returns:
         Yield between each test: (action, operation)
+
+    Raises:
+        ValueError: In case you specify neither a swagger.yaml path or an app URL.
     """
     if authorize_error is None:
         authorize_error = {}
 
     # Init test
-    app = connexion.App(__name__, port=8080, debug=True, specification_dir=os.path.dirname(os.path.realpath(swagger_yaml_path)))
-    app.add_api(os.path.basename(swagger_yaml_path))
-    app_client = app.app.test_client()
+    if swagger_yaml_path is not None:
+        app = connexion.App(__name__, port=8080, debug=True, specification_dir=os.path.dirname(os.path.realpath(swagger_yaml_path)))
+        app.add_api(os.path.basename(swagger_yaml_path))
+        app_client = app.app.test_client()
+        swagger_parser = SwaggerParser(swagger_yaml_path, use_example=False)
+    elif app_url is not None:
+        app_client = requests
+        swagger_parser = SwaggerParser(swagger_dict=requests.get(u'{0}/swagger.json'.format(app_url)).json(),
+                                       use_example=False)
+    else:
+        raise ValueError('You must either specify a swagger.yaml path or an app url')
 
-    swagger_parser = SwaggerParser(swagger_yaml_path, use_example=False)
     operation_sorted = {'post': [], 'get': [], 'put': [], 'patch': [], 'delete': []}
 
     # Sort operation by action
@@ -222,8 +245,13 @@ def swagger_test_yield(swagger_yaml_path, authorize_error=None, wait_between_tes
             request_args = get_request_args(path, action, swagger_parser)
             url, body, headers = get_url_body_from_request(action, path, request_args, swagger_parser)
 
-            response = get_method_from_action(app_client, action)(url, headers=headers,
-                                                                  data=body)
+            if swagger_yaml_path is not None:
+                response = get_method_from_action(app_client, action)(url, headers=headers,
+                                                                      data=body)
+            else:
+                response = get_method_from_action(app_client, action)(u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url),
+                                                                      headers=dict(headers),
+                                                                      data=body)
 
             logger.info(u'TESTING {0} {1}: {2}'.format(action.upper(), url, response.status_code))
 
@@ -238,8 +266,15 @@ def swagger_test_yield(swagger_yaml_path, authorize_error=None, wait_between_tes
                 body_req = swagger_parser.get_send_request_correct_body(path, action)
                 response_spec = swagger_parser.get_request_data(path, action, body_req)
 
+                # Get response data
+                if hasattr(response, 'content'):
+                    response_text = response.content
+                else:
+                    response_text = response.data
+
+                # Get json
                 try:
-                    response_json = json.loads(response.data.decode('utf-8'))
+                    response_json = json.loads(response_text.decode('utf-8'))
                 except (ValueError, AttributeError):
                     response_json = None
 
