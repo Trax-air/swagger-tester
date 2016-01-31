@@ -45,4 +45,4 @@ Setup
 License
 -------
 
-swagger-tester is licensed under http://opensource.org/licenses/GPL-3.0.
+swagger-tester is licensed under http://opensource.org/licenses/MIT.
