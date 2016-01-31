@@ -4,6 +4,7 @@
 import os
 import socket
 import threading
+import time
 
 import connexion
 
@@ -33,5 +34,7 @@ def test_swagger_test_app_url():
     server = threading.Thread(None, app.run)
     server.daemon = True
     server.start()
+
+    time.sleep(3)  # Make sure the server has started
 
     swagger_test(app_url='http://localhost:{0}/v2'.format(port))
