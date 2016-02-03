@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pytest
 import socket
 import threading
 import time
@@ -11,8 +12,9 @@ import connexion
 from swagger_tester import swagger_test
 
 
-def test_swagger_test():
-    swagger_test(os.path.join(os.path.dirname(__file__), 'swagger.yaml'))
+@pytest.mark.parametrize('example', [True, False])
+def test_swagger_test(example):
+    swagger_test(os.path.join(os.path.dirname(__file__), 'swagger.yaml'), use_example=example)
 
 
 def get_open_port():
@@ -25,7 +27,8 @@ def get_open_port():
     return port
 
 
-def test_swagger_test_app_url():
+@pytest.mark.parametrize('example', [True, False])
+def test_swagger_test_app_url(example):
     port = get_open_port()
     swagger_yaml_path = os.path.join(os.path.dirname(__file__), 'swagger.yaml')
 
@@ -37,4 +40,4 @@ def test_swagger_test_app_url():
 
     time.sleep(3)  # Make sure the server has started
 
-    swagger_test(app_url='http://localhost:{0}/v2'.format(port))
+    swagger_test(app_url='http://localhost:{0}/v2'.format(port), use_example=example)
