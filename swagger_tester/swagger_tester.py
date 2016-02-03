@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import requests
+import six
 import time
 
 try:
@@ -49,11 +50,11 @@ def validate_definition(swagger_parser, valid_response, response):
         response: response of the request.
     """
     # No answer
-    if response is None:
-        assert valid_response == ''
+    if response is None or response == '':
+        assert valid_response == '' or valid_response is None
         return
 
-    if valid_response == '':
+    if valid_response == '' or valid_response is None:
         assert response is None or response == ''
         return
 
@@ -66,9 +67,15 @@ def validate_definition(swagger_parser, valid_response, response):
         else:
             return
 
-    # Check if there is a definition that match body and response
-    assert len(set(swagger_parser.get_dict_definition(valid_response, get_list=True))
-               .intersection(swagger_parser.get_dict_definition(response, get_list=True))) >= 1
+    if not isinstance(response, dict) or not isinstance(valid_response, dict):
+        # Not a dict
+        if (not isinstance(response, (six.text_type, six.string_types)) or
+           not isinstance(valid_response, (six.text_type, six.string_types))):
+            assert type(response) == type(valid_response)
+    else:
+        # Check if there is a definition that match body and response
+        assert len(set(swagger_parser.get_dict_definition(valid_response, get_list=True))
+                   .intersection(swagger_parser.get_dict_definition(response, get_list=True))) >= 1
 
 
 def parse_parameters(url, action, path, request_args, swagger_parser):
