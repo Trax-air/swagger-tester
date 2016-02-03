@@ -113,5 +113,9 @@ def updateUser(username=None):
     return (pet, 200)
 
 
+def updateUserEmail(username):
+    return ('+1-202-555-0153', 200)
+
+
 def deleteUser(username=None):
     return ('', 204)
