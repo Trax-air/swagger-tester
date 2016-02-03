@@ -441,7 +441,7 @@ paths:
           description: Updated user object
           required: false
           schema:
-            $ref: "#/definitions/User"
+            type: string
       responses:
         "200":
           description: Created
