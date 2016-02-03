@@ -185,7 +185,8 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
     for _ in swagger_test_yield(swagger_yaml_path=swagger_yaml_path,
                                 app_url=app_url,
                                 authorize_error=authorize_error,
-                                wait_between_test=wait_between_test):
+                                wait_between_test=wait_between_test,
+                                use_example=use_example):
         pass
 
 
