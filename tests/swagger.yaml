@@ -441,7 +441,7 @@ paths:
           description: Updated user object
           required: false
           schema:
-            type: string
+            $ref: "#/definitions/User"
       responses:
         "200":
           description: Created
@@ -472,6 +472,36 @@ paths:
           description: User not found
         "400":
           description: Invalid username supplied
+  /users/{username}/email:
+    put:
+      tags:
+        - user
+      summary: Update user's email address
+      description: This can only be done by the logged in user.
+      operationId: tests.api.updateUserEmail
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: username
+          description: name that need to be deleted
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: New email address
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated successfully
+          schema:
+            type: string
+        "404":
+          description: User not found
+        "400":
+          description: Invalid user supplied
 securityDefinitions:
   api_key:
     type: apiKey
