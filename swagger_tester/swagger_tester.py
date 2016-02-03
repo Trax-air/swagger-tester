@@ -159,7 +159,8 @@ def get_method_from_action(client, action):
         return client.patch
 
 
-def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None, wait_between_test=False):
+def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
+                 wait_between_test=False, use_example=True):
     """Test the given swagger api.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -176,6 +177,7 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None, wai
                          }
                          Will ignore 404 when getting a pet.
         wait_between_test: wait between tests (useful if you use ES).
+        use_example: use example of your swagger file instead of generated data.
 
     Raises:
         ValueError: In case you specify neither a swagger.yaml path or an app URL.
@@ -183,11 +185,13 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None, wai
     for _ in swagger_test_yield(swagger_yaml_path=swagger_yaml_path,
                                 app_url=app_url,
                                 authorize_error=authorize_error,
-                                wait_between_test=wait_between_test):
+                                wait_between_test=wait_between_test,
+                                use_example=use_example):
         pass
 
 
-def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None, wait_between_test=False):
+def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None,
+                       wait_between_test=False, use_example=True):
     """Test the given swagger api. Yield the action and operation done for each test.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -204,6 +208,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                          }
                          Will ignore 404 when getting a pet.
         wait_between_test: wait between tests (useful if you use Elasticsearch).
+        use_example: use example of your swagger file instead of generated data.
 
     Returns:
         Yield between each test: (action, operation)
@@ -219,7 +224,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
         app = connexion.App(__name__, port=8080, debug=True, specification_dir=os.path.dirname(os.path.realpath(swagger_yaml_path)))
         app.add_api(os.path.basename(swagger_yaml_path))
         app_client = app.app.test_client()
-        swagger_parser = SwaggerParser(swagger_yaml_path, use_example=False)
+        swagger_parser = SwaggerParser(swagger_yaml_path, use_example=use_example)
     elif app_url is not None:
         app_client = requests
         swagger_parser = SwaggerParser(swagger_dict=requests.get(u'{0}/swagger.json'.format(app_url)).json(),
