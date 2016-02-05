@@ -21,6 +21,13 @@ Swagger-tester will test automatically your swagger API. Swagger API made with c
 
 To run the test, swagger-tester will detect every path and actions of your API. And for each, it will send a request and check if the response match the swagger file specification.
 
+Related Libraries
+-----------------
+You may find related libraries to this one:
+* https://github.com/Trax-air/swagger-stub: A stub you can use in your client's unit tests. All the HTTP calls to your swagger API are mocked by default. You can also add your own mocked_calls in your test functions.
+* https://github.com/Trax-air/swagger-aggregator: Aggregate several swagger specs into one. Useful for your API gateways!
+* https://github.com/Trax-air/swagger-parser: A helper that parses swagger specs. You can access the HTTP actions / paths and some example data
+
 Example Usage
 -------------
 
