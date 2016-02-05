@@ -72,7 +72,7 @@ def validate_definition(swagger_parser, valid_response, response):
         (not isinstance(response, (six.text_type, six.string_types)) or
             not isinstance(valid_response, (six.text_type, six.string_types)))):
         assert type(response) == type(valid_response)
-    else:
+    elif isinstance(response, dict) and isinstance(valid_response, dict):
         # Check if there is a definition that match body and response
         assert len(set(swagger_parser.get_dict_definition(valid_response, get_list=True))
                    .intersection(swagger_parser.get_dict_definition(response, get_list=True))) >= 1
