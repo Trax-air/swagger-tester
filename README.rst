@@ -10,7 +10,10 @@
 .. image:: https://www.versioneye.com/user/projects/56b4a9340a0ff5003b97548a/badge.svg
   :alt: Dependency Status
   :target: https://www.versioneye.com/user/projects/56b4a9340a0ff5003b97548a  
-
+.. image:: https://img.shields.io/pypi/v/swagger-tester.svg
+    :target: https://pypi.python.org/pypi/swagger-tester/
+.. image:: https://img.shields.io/pypi/dw/swagger-tester.svg
+    :target: https://pypi.python.org/pypi/swagger-tester/
 swagger-tester
 ==============
 
