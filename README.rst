@@ -1,6 +1,12 @@
 .. image:: https://travis-ci.org/Trax-air/swagger-tester.svg?branch=master
    :alt: Travis status
    :target: https://travis-ci.org/Trax-air/swagger-tester
+.. image:: https://www.quantifiedcode.com/api/v1/project/8c8d73f7301242c2af0a8e12025bc4ce/badge.svg
+  :target: https://www.quantifiedcode.com/app/project/8c8d73f7301242c2af0a8e12025bc4ce
+  :alt: Code issues
+.. image:: https://badges.gitter.im/Trax-air/swagger-tester.svg
+  :alt: Join the chat at https://gitter.im/Trax-air/swagger-tester
+  :target: https://gitter.im/Trax-air/swagger-tester?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 swagger-tester
 ==============
