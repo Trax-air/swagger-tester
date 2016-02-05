@@ -67,11 +67,11 @@ def validate_definition(swagger_parser, valid_response, response):
         else:
             return
 
-    if not isinstance(response, dict) or not isinstance(valid_response, dict):
-        # Not a dict
-        if (not isinstance(response, (six.text_type, six.string_types)) or
-           not isinstance(valid_response, (six.text_type, six.string_types))):
-            assert type(response) == type(valid_response)
+    # Not a dict and not a text
+    if ((not isinstance(response, dict) or not isinstance(valid_response, dict)) and
+        (not isinstance(response, (six.text_type, six.string_types)) or
+            not isinstance(valid_response, (six.text_type, six.string_types)))):
+        assert type(response) == type(valid_response)
     else:
         # Check if there is a definition that match body and response
         assert len(set(swagger_parser.get_dict_definition(valid_response, get_list=True))
