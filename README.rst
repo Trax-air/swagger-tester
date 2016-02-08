@@ -7,13 +7,14 @@
 .. image:: https://badges.gitter.im/Trax-air/swagger-tester.svg
   :alt: Join the chat at https://gitter.im/Trax-air/swagger-tester
   :target: https://gitter.im/Trax-air/swagger-tester?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-.. image:: https://www.versioneye.com/user/projects/56b4a9340a0ff5003b97548a/badge.svg
+.. image:: https://www.versioneye.com/user/projects/56b4a93a0a0ff5002c85f718/badge.svg
   :alt: Dependency Status
-  :target: https://www.versioneye.com/user/projects/56b4a9340a0ff5003b97548a  
+  :target: https://www.versioneye.com/user/projects/56b4a93a0a0ff5002c85f718
 .. image:: https://img.shields.io/pypi/v/swagger-tester.svg
     :target: https://pypi.python.org/pypi/swagger-tester/
 .. image:: https://img.shields.io/pypi/dw/swagger-tester.svg
     :target: https://pypi.python.org/pypi/swagger-tester/
+    
 swagger-tester
 ==============
 
