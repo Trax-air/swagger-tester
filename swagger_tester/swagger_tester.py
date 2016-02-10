@@ -296,7 +296,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
 
                 try:
                     response_spec = swagger_parser.get_request_data(path, action, body_req)
-                except:
+                except (TypeError, ValueError):
                     logger.warning(u'Error in the swagger file')
                     continue
 
@@ -306,10 +306,16 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                 else:
                     response_text = response.data
 
+                # Convert to str
+                try:
+                    response_text = response_text.decode('utf-8')
+                except AttributeError:
+                    pass
+
                 # Get json
                 try:
-                    response_json = json.loads(response_text.decode('utf-8'))
-                except (ValueError, AttributeError):
+                    response_json = json.loads(response_text)
+                except ValueError:
                     response_json = response_text
 
                 assert response.status_code < 400
