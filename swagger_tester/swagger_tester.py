@@ -307,10 +307,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                     response_text = response.data
 
                 # Convert to str
-                try:
+                if hasattr(response_text, 'decode'):
                     response_text = response_text.decode('utf-8')
-                except AttributeError:
-                    pass
 
                 # Get json
                 try:
