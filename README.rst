@@ -14,7 +14,7 @@
     :target: https://pypi.python.org/pypi/swagger-tester/
 .. image:: https://img.shields.io/pypi/dw/swagger-tester.svg
     :target: https://pypi.python.org/pypi/swagger-tester/
-    
+
 swagger-tester
 ==============
 
@@ -41,17 +41,27 @@ Example Usage
   # By default, every status_code over other than 1xx, 2xx or 3xx
   # will be considered as an error.
   authorize_error = {
-    'get': {
-      '/pet/': ['400', '404']
+        'post': {
+            '/pet/{petId}': [200],
+            '/pet': [200]
+        },
+        'put': {
+            '/user/{username}': [200],
+            '/pet': [200]
+        },
+        'delete': {
+            '/pet/{petId}': [200],
+            '/store/order/{orderId}': [200],
+            '/user/{username}': [200]
+        }
     }
-  }
 
   # Run the test with connexion
   # An AssertionError will be raise in case of error.
   swagger_test('path_to_your_swagger.yaml', authorize_error=authorize_error)
 
-  # Or if you have a running API on http://localhost:8080/v1
-  swagger_test(app_url='http://localhost:8080/v1', authorize_error=authorize_error)
+  # Or if you have a running API
+  swagger_test(app_url='http://petstore.swagger.io/v2', authorize_error=authorize_error)
 
 Documentation
 -------------

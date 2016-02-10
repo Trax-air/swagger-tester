@@ -284,16 +284,21 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
             logger.info(u'Got status code: {0}'.format(response.status_code))
 
             # Check if authorize error
-            if (action in authorize_error and url in authorize_error[action] and
-                    response.status_code in authorize_error[action][url]):
-                logger.info(u'Got authorize error on {0} with status {1}'.format(url, response.status_codde))
+            if (action in authorize_error and path in authorize_error[action] and
+                    response.status_code in authorize_error[action][path]):
+                logger.info(u'Got authorize error on {0} with status {1}'.format(url, response.status_code))
                 yield (action, operation)
                 continue
 
             if not response.status_code == 404:
                 # Get valid request and response body
                 body_req = swagger_parser.get_send_request_correct_body(path, action)
-                response_spec = swagger_parser.get_request_data(path, action, body_req)
+
+                try:
+                    response_spec = swagger_parser.get_request_data(path, action, body_req)
+                except:
+                    logger.warning(u'Error in the swagger file')
+                    continue
 
                 # Get response data
                 if hasattr(response, 'content'):
@@ -305,12 +310,15 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                 try:
                     response_json = json.loads(response_text.decode('utf-8'))
                 except (ValueError, AttributeError):
-                    response_json = None
+                    response_json = response_text
 
-                assert response.status_code in response_spec.keys()
                 assert response.status_code < 400
 
-                validate_definition(swagger_parser, response_spec[response.status_code], response_json)
+                if 'default' not in response_spec.keys():
+                    assert response.status_code in response_spec.keys()
+                    validate_definition(swagger_parser, response_spec[response.status_code], response_json)
+                else:
+                    validate_definition(swagger_parser, response_spec['default'], response_json)
 
                 if wait_between_test:  # Wait
                     time.sleep(2)
