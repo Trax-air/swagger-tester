@@ -16,7 +16,9 @@ import connexion
 
 from swagger_parser import SwaggerParser
 
+logging.basicConfig()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def get_request_args(path, action, swagger_parser):
@@ -91,10 +93,11 @@ def parse_parameters(url, action, path, request_args, swagger_parser):
         swagger_parser: instance of swagger parser.
 
     Returns:
-        (url, body, query_params, headers)
+        (url, body, query_params, headers, files)
     """
     body = None
     query_params = {}
+    files = {}
     headers = [('Content-Type', 'application/json')]
 
     if path in swagger_parser.paths.keys() and action in swagger_parser.paths[path].keys():
@@ -114,9 +117,16 @@ def parse_parameters(url, action, path, request_args, swagger_parser):
             elif parameter_spec['in'] == 'formData':
                 if body is None:
                     body = {}
-                body[parameter_name] = request_args[parameter_name]
+
+                if (isinstance(request_args[parameter_name], tuple) and
+                        hasattr(request_args[parameter_name][0], 'read')):
+                    files[parameter_name] = (request_args[parameter_name][1],
+                                             request_args[parameter_name][0])
+                else:
+                    body[parameter_name] = request_args[parameter_name]
+
                 headers = [('Content-Type', 'multipart/form-data')]
-    return url, body, query_params, headers
+    return url, body, query_params, headers, files
 
 
 def get_url_body_from_request(action, path, request_args, swagger_parser):
@@ -132,16 +142,19 @@ def get_url_body_from_request(action, path, request_args, swagger_parser):
         (url, body)
     """
     url = u'{0}{1}'.format(swagger_parser.base_path, path)
-    url, body, query_params, headers = parse_parameters(url, action, path, request_args, swagger_parser)
+    url, body, query_params, headers, files = parse_parameters(url, action, path, request_args, swagger_parser)
 
     url = '{0}?{1}'.format(url, urlencode(query_params))
 
-    try:
-        body = json.dumps(body)
-    except TypeError as exc:
-        logger.warning(u'Cannot decode body: {0}.'.format(exc))
+    if ('Content-Type', 'multipart/form-data') not in headers:
+        try:
+            body = json.dumps(body)
+        except TypeError as exc:
+            logger.warning(u'Cannot decode body: {0}.'.format(exc))
+    else:
+        headers.remove(('Content-Type', 'multipart/form-data'))
 
-    return url, body, headers
+    return url, body, headers, files
 
 
 def get_method_from_action(client, action):
@@ -255,7 +268,9 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
             action = operation[1][1]
 
             request_args = get_request_args(path, action, swagger_parser)
-            url, body, headers = get_url_body_from_request(action, path, request_args, swagger_parser)
+            url, body, headers, files = get_url_body_from_request(action, path, request_args, swagger_parser)
+
+            logger.info(u'TESTING {0} {1}'.format(action.upper(), url))
 
             if swagger_yaml_path is not None:
                 response = get_method_from_action(app_client, action)(url, headers=headers,
@@ -263,13 +278,15 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
             else:
                 response = get_method_from_action(app_client, action)(u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url),
                                                                       headers=dict(headers),
-                                                                      data=body)
+                                                                      data=body,
+                                                                      files=files)
 
-            logger.info(u'TESTING {0} {1}: {2}'.format(action.upper(), url, response.status_code))
+            logger.info(u'Got status code: {0}'.format(response.status_code))
 
             # Check if authorize error
             if (action in authorize_error and url in authorize_error[action] and
                     response.status_code in authorize_error[action][url]):
+                logger.info(u'Got authorize error on {0} with status {1}'.format(url, response.status_codde))
                 yield (action, operation)
                 continue
 
