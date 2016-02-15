@@ -150,7 +150,7 @@ def get_url_body_from_request(action, path, request_args, swagger_parser):
         try:
             body = json.dumps(body)
         except TypeError as exc:
-            logger.warning(u'Cannot decode body: {0}.'.format(exc))
+            logger.warning(u'Cannot decode body: {0}.'.format(repr(exc)))
     else:
         headers.remove(('Content-Type', 'multipart/form-data'))
 
@@ -286,7 +286,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
             # Check if authorize error
             if (action in authorize_error and path in authorize_error[action] and
                     response.status_code in authorize_error[action][path]):
-                logger.info(u'Got authorize error on {0} with status {1}'.format(url, response.status_code))
+                logger.info(u'Got authorized error on {0} with status {1}'.format(url, response.status_code))
                 yield (action, operation)
                 continue
 
@@ -296,8 +296,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
 
                 try:
                     response_spec = swagger_parser.get_request_data(path, action, body_req)
-                except (TypeError, ValueError):
-                    logger.warning(u'Error in the swagger file')
+                except (TypeError, ValueError) as exc:
+                    logger.warning(u'Error in the swagger file: {0}'.format(repr(exc))
                     continue
 
                 # Get response data
