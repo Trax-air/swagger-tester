@@ -297,7 +297,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                 try:
                     response_spec = swagger_parser.get_request_data(path, action, body_req)
                 except (TypeError, ValueError) as exc:
-                    logger.warning(u'Error in the swagger file: {0}'.format(repr(exc))
+                    logger.warning(u'Error in the swagger file: {0}'.format(repr(exc)))
                     continue
 
                 # Get response data
