@@ -1,4 +1,7 @@
 language: python
+os:
+- linux
+- osx
 env:
 - TOXENV=py34
 - TOXENV=py27
