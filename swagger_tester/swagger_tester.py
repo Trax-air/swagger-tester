@@ -125,7 +125,10 @@ def parse_parameters(url, action, path, request_args, swagger_parser):
                 else:
                     body[parameter_name] = request_args[parameter_name]
 
-                headers = [('Content-Type', 'multipart/form-data')]
+                # The first header is always content type, so just replace it so we don't squash custom headers
+                headers[0] = ('Content-Type', 'multipart/form-data')
+            elif parameter_spec['in'] == 'header':
+                headers += [(parameter_spec['name'], parameter_spec['default'])]
     return url, body, query_params, headers, files
 
 
@@ -139,7 +142,7 @@ def get_url_body_from_request(action, path, request_args, swagger_parser):
         swagger_parser: instance of swagger parser.
 
     Returns:
-        (url, body)
+        url, body, headers, files
     """
     url = u'{0}{1}'.format(swagger_parser.base_path, path)
     url, body, query_params, headers, files = parse_parameters(url, action, path, request_args, swagger_parser)
