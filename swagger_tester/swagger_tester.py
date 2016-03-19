@@ -128,7 +128,7 @@ def parse_parameters(url, action, path, request_args, swagger_parser):
                 # The first header is always content type, so just replace it so we don't squash custom headers
                 headers[0] = ('Content-Type', 'multipart/form-data')
             elif parameter_spec['in'] == 'header':
-                headers += (parameter_spec['name'], parameter_spec['default'])
+                headers += [(parameter_spec['name'], parameter_spec['default'])]
     return url, body, query_params, headers, files
 
 
