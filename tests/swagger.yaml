@@ -502,6 +502,19 @@ paths:
           description: User not found
         "400":
           description: Invalid user supplied
+  /test-header-path:
+    get:
+      summary: Test path with a header.
+      description: Test path with a header.
+      parameters:
+        - in: header
+          name: My-Test-Header
+          required: true
+          type: boolean
+          default: true
+      responses:
+        "200":
+          description: Successful request
 securityDefinitions:
   api_key:
     type: apiKey
