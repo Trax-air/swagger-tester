@@ -318,11 +318,13 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
 
                 assert response.status_code < 400
 
-                if 'default' not in response_spec.keys():
-                    assert response.status_code in response_spec.keys()
+                if response.status_code in response_spec.keys():
                     validate_definition(swagger_parser, response_spec[response.status_code], response_json)
-                else:
+                elif 'default' in response_spec.keys():
                     validate_definition(swagger_parser, response_spec['default'], response_json)
+                else:
+                    raise AssertionError('Invalid status code {0}. Expected: {1}'.format(response.status_code,
+                                                                                         response_spec.keys()))
 
                 if wait_between_test:  # Wait
                     time.sleep(2)
