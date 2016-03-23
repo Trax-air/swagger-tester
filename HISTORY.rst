@@ -2,6 +2,11 @@
 History
 =======
 
+0.2.4 (2016-3-23)
+------------------
+
+* Improve the check of status code when 'default' is in the specification.
+
 0.2.3 (2016-2-10)
 ------------------
 
