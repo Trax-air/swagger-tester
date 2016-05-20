@@ -145,8 +145,7 @@ def get_url_body_from_request(action, path, request_args, swagger_parser):
     Returns:
         url, body, headers, files
     """
-    url = u'{0}{1}'.format(swagger_parser.base_path, path)
-    url, body, query_params, headers, files = parse_parameters(url, action, path, request_args, swagger_parser)
+    url, body, query_params, headers, files = parse_parameters(path, action, path, request_args, swagger_parser)
 
     url = '{0}?{1}'.format(url, urlencode(query_params))
 

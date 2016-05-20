@@ -15,17 +15,17 @@ def test_swagger_test(example):
 def test_swagger_test_app_url():
     authorize_error = {
         'post': {
-            '/pet/{petId}': [200],
-            '/pet': [200]
+            '/v2/pet/{petId}': [200],
+            '/v2/pet': [200]
         },
         'put': {
-            '/user/{username}': [200],
-            '/pet': [200]
+            '/v2/user/{username}': [200],
+            '/v2/pet': [200]
         },
         'delete': {
-            '/pet/{petId}': [200],
-            '/store/order/{orderId}': [200],
-            '/user/{username}': [200]
+            '/v2/pet/{petId}': [200],
+            '/v2/store/order/{orderId}': [200],
+            '/v2/user/{username}': [200]
         }
     }
 
