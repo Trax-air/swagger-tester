@@ -8,7 +8,7 @@ To use Swagger Tester in a project:
 
   from swagger_tester import swagger_test
 
-  # Define the error you authorize in your API
+  # Dict containing the error you don't want to raise.
   # By default, every status_code over other than 1xx, 2xx or 3xx
   # will be considered as an error.
   authorize_error = {
