@@ -259,7 +259,9 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
     operation_sorted = {'post': [], 'get': [], 'put': [], 'patch': [], 'delete': []}
 
     # Sort operation by action
-    for operation, request in swagger_parser.operation.items():
+    operations = swagger_parser.operation.copy()
+    operations.update(swagger_parser.generated_operation)
+    for operation, request in operations.items():
         operation_sorted[request[1]].append((operation, request))
 
     postponed = []
