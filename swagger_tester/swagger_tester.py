@@ -277,7 +277,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
 
             logger.info(u'TESTING {0} {1}'.format(action.upper(), url))
 
-            if swagger_yaml_path is not None:
+            if swagger_yaml_path is not None and app_url is None:
                 response = get_method_from_action(app_client, action)(url, headers=headers,
                                                                       data=body)
             else:
