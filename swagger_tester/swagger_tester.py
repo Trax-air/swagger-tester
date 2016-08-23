@@ -20,6 +20,9 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+# The swagger path item object (as well as HTTP) allows for the following
+# HTTP methods (http://swagger.io/specification/#pathItemObject):
+_HTTP_METHODS = [ 'get', 'put', 'post', 'delete', 'options', 'head', 'patch' ]
 
 def get_request_args(path, action, swagger_parser):
     """Get request args from an action and a path.
@@ -170,16 +173,9 @@ def get_method_from_action(client, action):
     Returns:
         A flask client function.
     """
-    if action == 'get':
-        return client.get
-    elif action == 'post':
-        return client.post
-    elif action == 'put':
-        return client.put
-    elif action == 'delete':
-        return client.delete
-    elif action == 'patch':
-        return client.patch
+    assert action in _HTTP_METHODS, \
+      "Action '%s' is not recognized; needs to be one of %s." % (action, str(_HTTP_METHODS))
+    return client.__getattribute__(action)
 
 
 def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
@@ -255,7 +251,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
     else:
         raise ValueError('You must either specify a swagger.yaml path or an app url')
 
-    operation_sorted = {'post': [], 'get': [], 'put': [], 'patch': [], 'delete': []}
+    operation_sorted = dict([(method, []) for method in _HTTP_METHODS])
 
     # Sort operation by action
     operations = swagger_parser.operation.copy()
@@ -266,7 +262,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
     postponed = []
 
     # For every operationId
-    for action in ['post', 'get', 'put', 'patch', 'delete']:
+    for action in _HTTP_METHODS:
         for operation in operation_sorted[action]:
             # Make request
             path = operation[1][0]
