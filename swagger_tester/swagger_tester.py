@@ -320,8 +320,6 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                 except ValueError:
                     response_json = response_text
 
-                assert response.status_code < 400
-
                 if response.status_code in response_spec.keys():
                     validate_definition(swagger_parser, response_spec[response.status_code], response_json)
                 elif 'default' in response_spec.keys():
