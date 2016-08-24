@@ -180,7 +180,7 @@ def get_method_from_action(client, action):
     Returns:
         A flask client function.
     """
-    error_msg = "Action '%s' is not recognized; needs to be one of %s." % (action, str(_HTTP_METHODS))
+    error_msg = "Action '{0}' is not recognized; needs to be one of {1}.".format(action, str(_HTTP_METHODS))
     assert action in _HTTP_METHODS, error_msg
 
     return client.__getattribute__(action)
@@ -263,7 +263,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
     else:
         raise ValueError('You must either specify a swagger.yaml path or an app url')
 
-    operation_sorted = dict([(method, []) for method in _HTTP_METHODS])
+    operation_sorted = {method: [] for method in _HTTP_METHODS}
 
     # Sort operation by action
     operations = swagger_parser.operation.copy()
