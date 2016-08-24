@@ -187,7 +187,7 @@ def get_method_from_action(client, action):
 
 
 def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                 wait_between_test=False, use_example=True):
+                 wait_time_between_tests=0, use_example=True):
     """Test the given swagger api.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -203,7 +203,7 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
                             }
                          }
                          Will ignore 404 when getting a pet.
-        wait_between_test: wait between tests (useful if you use ES).
+        wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
 
     Raises:
@@ -212,13 +212,13 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
     for _ in swagger_test_yield(swagger_yaml_path=swagger_yaml_path,
                                 app_url=app_url,
                                 authorize_error=authorize_error,
-                                wait_between_test=wait_between_test,
+                                wait_time_between_tests=wait_time_between_tests,
                                 use_example=use_example):
         pass
 
 
 def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                       wait_between_test=False, use_example=True):
+                       wait_time_between_tests=0, use_example=True):
     """Test the given swagger api. Yield the action and operation done for each test.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -234,7 +234,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                             }
                          }
                          Will ignore 404 when getting a pet.
-        wait_between_test: wait between tests (useful if you use Elasticsearch).
+        wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
 
     Returns:
@@ -338,8 +338,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                     raise AssertionError('Invalid status code {0}. Expected: {1}'.format(response.status_code,
                                                                                          response_spec.keys()))
 
-                if wait_between_test:  # Wait
-                    time.sleep(2)
+                if wait_time_between_tests > 0:
+                    time.sleep(wait_time_between_tests)
 
                 yield (action, operation)
             else:
