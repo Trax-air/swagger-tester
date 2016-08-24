@@ -1,9 +1,6 @@
 """Api file for the pet example API.
 """
 
-import json
-
-
 pet = {
     'category': {
         'id': 42,

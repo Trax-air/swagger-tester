@@ -22,7 +22,8 @@ logger.setLevel(logging.INFO)
 
 # The swagger path item object (as well as HTTP) allows for the following
 # HTTP methods (http://swagger.io/specification/#pathItemObject):
-_HTTP_METHODS = [ 'get', 'put', 'post', 'delete', 'options', 'head', 'patch' ]
+_HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch']
+
 
 def get_request_args(path, action, swagger_parser):
     """Get request args from an action and a path.
@@ -179,8 +180,9 @@ def get_method_from_action(client, action):
     Returns:
         A flask client function.
     """
-    assert action in _HTTP_METHODS, \
-      "Action '%s' is not recognized; needs to be one of %s." % (action, str(_HTTP_METHODS))
+    error_msg = "Action '%s' is not recognized; needs to be one of %s." % (action, str(_HTTP_METHODS))
+    assert action in _HTTP_METHODS, error_msg
+
     return client.__getattribute__(action)
 
 
@@ -249,7 +251,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
         app_client = requests
         swagger_parser = SwaggerParser(swagger_yaml_path, use_example=use_example)
     elif swagger_yaml_path is not None:
-        app = connexion.App(__name__, port=8080, debug=True, specification_dir=os.path.dirname(os.path.realpath(swagger_yaml_path)))
+        specification_dir = os.path.dirname(os.path.realpath(swagger_yaml_path))
+        app = connexion.App(__name__, port=8080, debug=True, specification_dir=specification_dir)
         app.add_api(os.path.basename(swagger_yaml_path))
         app_client = app.app.test_client()
         swagger_parser = SwaggerParser(swagger_yaml_path, use_example=use_example)
@@ -286,7 +289,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                 response = get_method_from_action(app_client, action)(url, headers=headers,
                                                                       data=body)
             else:
-                response = get_method_from_action(app_client, action)(u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url),
+                path = u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url)
+                response = get_method_from_action(app_client, action)(path,
                                                                       headers=dict(headers),
                                                                       data=body,
                                                                       files=files)
