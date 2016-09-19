@@ -151,7 +151,8 @@ def get_url_body_from_request(action, path, request_args, swagger_parser):
 
     if ('Content-Type', 'multipart/form-data') not in headers:
         try:
-            body = json.dumps(body)
+            if body:
+                body = json.dumps(body)
         except TypeError as exc:
             logger.warning(u'Cannot decode body: {0}.'.format(repr(exc)))
     else:
