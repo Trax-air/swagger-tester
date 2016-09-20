@@ -244,7 +244,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
         swagger_parser = SwaggerParser(swagger_yaml_path, use_example=use_example)
     elif swagger_yaml_path is not None:
         app = connexion.App(__name__, port=8080, debug=True, specification_dir=os.path.dirname(os.path.realpath(swagger_yaml_path)))
-        app.add_api(os.path.basename(swagger_yaml_path))
+        app.add_api(os.path.basename(swagger_yaml_path), resolver_error = 501)
         app_client = app.app.test_client()
         swagger_parser = SwaggerParser(swagger_yaml_path, use_example=use_example)
     elif app_url is not None:
