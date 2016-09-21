@@ -116,3 +116,7 @@ def updateUserEmail(username):
 
 def deleteUser(username=None):
     return ('', 204)
+
+
+def testHeaderPath():
+    return ('', 200)
