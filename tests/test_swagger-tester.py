@@ -2,32 +2,37 @@
 # -*- coding: utf-8 -*-
 
 import os
-import pytest
 
 from swagger_tester import swagger_test
 
 
-@pytest.mark.parametrize('example', [True, False])
-def test_swagger_test(example):
-    swagger_test(os.path.join(os.path.dirname(__file__), 'swagger.yaml'), use_example=example)
-
-
-def test_swagger_test_app_url():
-    authorize_error = {
-        'post': {
-            '/v2/pet/{petId}': [200],
-            '/v2/pet': [200]
-        },
-        'put': {
-            '/v2/user/{username}': [200],
-            '/v2/pet': [200]
-        },
-        'delete': {
-            '/v2/pet/{petId}': [200],
-            '/v2/store/order/{orderId}': [200],
-            '/v2/user/{username}': [200]
-        }
+swagger_yaml_path = os.path.join(os.path.dirname(__file__), 'swagger.yaml')
+authorize_error = {
+    'post': {
+        '/v2/pet/{petId}': [200],
+        '/v2/pet': [200]
+    },
+    'put': {
+        '/v2/user/{username}': [200],
+        '/v2/pet': [200]
+    },
+    'delete': {
+        '/v2/pet/{petId}': [200],
+        '/v2/store/order/{orderId}': [200],
+        '/v2/user/{username}': [200]
     }
+}
+swagger_io_url = 'http://petstore.swagger.io/v2'
 
-    swagger_test(app_url='http://petstore.swagger.io/v2',
-                 authorize_error=authorize_error)
+
+def test_swagger_test_with_use_example():
+    swagger_test(swagger_yaml_path, use_example=True)
+
+
+def test_swagger_test_dont_use_example():
+    swagger_test(swagger_yaml_path, use_example=False)
+
+
+# USE EXAMPLE IS BY DEFAULT FALSE, WE CAN IGNORE THIS ARGUMENT
+def test_swagger_test_specify_app_url_use_example():
+    swagger_test(app_url=swagger_io_url, authorize_error=authorize_error)

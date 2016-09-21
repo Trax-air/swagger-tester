@@ -295,7 +295,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                                                                       data=body,
                                                                       files=files)
 
-            logger.info(u'Got status code: {0}'.format(response.status_code))
+            logger.info(u'Using {0}, got status code {1} for ********** {2} {3}'.format(
+                client_name, response.status_code, action.upper(), url))
 
             # Check if authorize error
             if (action in authorize_error and path in authorize_error[action] and
