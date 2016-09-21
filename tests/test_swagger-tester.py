@@ -33,6 +33,13 @@ def test_swagger_test_dont_use_example():
     swagger_test(swagger_yaml_path, use_example=False)
 
 
-# USE EXAMPLE IS BY DEFAULT FALSE, WE CAN IGNORE THIS ARGUMENT
 def test_swagger_test_specify_app_url_use_example():
-    swagger_test(app_url=swagger_io_url, authorize_error=authorize_error)
+    swagger_test(app_url=swagger_io_url,
+                 authorize_error=authorize_error,
+                 use_example=True)
+
+
+def test_swagger_test_specify_app_url_use_example():
+    swagger_test(app_url=swagger_io_url,
+                 authorize_error=authorize_error,
+                 use_example=False)
