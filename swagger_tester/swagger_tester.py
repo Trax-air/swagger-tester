@@ -55,6 +55,12 @@ def validate_definition(swagger_parser, valid_response, response):
         body: valid body answer from spec.
         response: response of the request.
     """
+    # additionalProperties do not match any definition because the keys
+    # vary. we can only check the type of the values
+    if 'any_prop1' in valid_response and 'any_prop2' in valid_response:
+        assert swagger_parser.validate_additional_properties(valid_response, response)
+        return
+
     # No answer
     if response is None or response == '':
         assert valid_response == '' or valid_response is None
