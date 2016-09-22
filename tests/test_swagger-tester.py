@@ -25,7 +25,7 @@ authorize_error = {
 swagger_io_url = 'http://petstore.swagger.io/v2'
 
 
-def test_swagger_test_with_use_example():
+def test_swagger_test_use_example():
     swagger_test(swagger_yaml_path, use_example=True)
 
 
@@ -39,7 +39,7 @@ def test_swagger_test_specify_app_url_use_example():
                  use_example=True)
 
 
-def test_swagger_test_specify_app_url_use_example():
+def test_swagger_test_specify_app_url_dont_use_example():
     swagger_test(app_url=swagger_io_url,
                  authorize_error=authorize_error,
                  use_example=False)
