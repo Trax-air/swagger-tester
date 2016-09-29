@@ -190,7 +190,7 @@ def get_method_from_action(client, action):
 
 
 def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                 wait_time_between_tests=0, use_example=True):
+                 wait_time_between_tests=0, use_example=True, dry_run=False):
     """Test the given swagger api.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -208,6 +208,7 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
                          Will ignore 404 when getting a pet.
         wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
+        dry_run: don't actually execute the test, only show what would be sent
 
     Raises:
         ValueError: In case you specify neither a swagger.yaml path or an app URL.
@@ -216,12 +217,13 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
                                 app_url=app_url,
                                 authorize_error=authorize_error,
                                 wait_time_between_tests=wait_time_between_tests,
-                                use_example=use_example):
+                                use_example=use_example,
+                                dry_run=dry_run):
         pass
 
 
 def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                       wait_time_between_tests=0, use_example=True):
+                       wait_time_between_tests=0, use_example=True, dry_run=False):
     """Test the given swagger api. Yield the action and operation done for each test.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -239,6 +241,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                          Will ignore 404 when getting a pet.
         wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
+        dry_run: don't actually execute the test, only show what would be sent
 
     Returns:
         Yield between each test: (action, operation)
@@ -293,10 +296,17 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
             logger.info(u'TESTING {0} {1}'.format(action.upper(), url))
 
             if swagger_yaml_path is not None and app_url is None:
-                response = get_method_from_action(app_client, action)(url, headers=headers,
-                                                                      data=body)
+                if dry_run:
+                    logger.info("\nWould send %s to %s with body %s and headers %s" %
+                                (action.upper(), url, body, headers))
+                    continue
+                response = get_method_from_action(app_client, action)(url, headers=headers, data=body)
             else:
                 full_path = u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url)
+                if dry_run:
+                    logger.info("\nWould send %s to %s with body %s and headers %s" %
+                                (action.upper(), full_path, body, headers))
+                    continue
                 response = get_method_from_action(app_client, action)(full_path,
                                                                       headers=dict(headers),
                                                                       data=body,
