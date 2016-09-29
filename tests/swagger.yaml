@@ -505,6 +505,7 @@ paths:
   /test-header-path:
     get:
       summary: Test path with a header.
+      operationId: tests.api.testHeaderPath
       description: Test path with a header.
       parameters:
         - in: header

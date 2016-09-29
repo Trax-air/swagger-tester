@@ -20,6 +20,10 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+# The swagger path item object (as well as HTTP) allows for the following
+# HTTP methods (http://swagger.io/specification/#pathItemObject):
+_HTTP_METHODS = ['put', 'post', 'get', 'delete', 'options', 'head', 'patch']
+
 
 def get_request_args(path, action, swagger_parser):
     """Get request args from an action and a path.
@@ -51,6 +55,12 @@ def validate_definition(swagger_parser, valid_response, response):
         body: valid body answer from spec.
         response: response of the request.
     """
+    # additionalProperties do not match any definition because the keys
+    # vary. we can only check the type of the values
+    if 'any_prop1' in valid_response and 'any_prop2' in valid_response:
+        assert swagger_parser.validate_additional_properties(valid_response, response)
+        return
+
     # No answer
     if response is None or response == '':
         assert valid_response == '' or valid_response is None
@@ -61,7 +71,7 @@ def validate_definition(swagger_parser, valid_response, response):
         return
 
     # Validate output definition
-    if isinstance(valid_response, list):  # Return type is a lists
+    if isinstance(valid_response, list):  # Return type is a list
         assert isinstance(response, list)
         if response:
             valid_response = valid_response[0]
@@ -76,8 +86,9 @@ def validate_definition(swagger_parser, valid_response, response):
         assert type(response) == type(valid_response)
     elif isinstance(response, dict) and isinstance(valid_response, dict):
         # Check if there is a definition that match body and response
-        assert len(set(swagger_parser.get_dict_definition(valid_response, get_list=True))
-                   .intersection(swagger_parser.get_dict_definition(response, get_list=True))) >= 1
+        valid_definition = swagger_parser.get_dict_definition(valid_response, get_list=True)
+        actual_definition = swagger_parser.get_dict_definition(response, get_list=True)
+        assert len(set(valid_definition).intersection(actual_definition)) >= 1
 
 
 def parse_parameters(url, action, path, request_args, swagger_parser):
@@ -128,8 +139,9 @@ def parse_parameters(url, action, path, request_args, swagger_parser):
                 # The first header is always content type, so just replace it so we don't squash custom headers
                 headers[0] = ('Content-Type', 'multipart/form-data')
             elif parameter_spec['in'] == 'header':
-                header_value = parameter_spec['default'] if 'default' in parameter_spec.keys() else ''
-                headers += [(parameter_spec['name'], header_value)]
+                header_value = request_args.get(parameter_name)
+                header_value = header_value or parameter_spec.get('default', '')
+                headers += [(parameter_spec['name'], str(header_value))]
     return url, body, query_params, headers, files
 
 
@@ -151,7 +163,8 @@ def get_url_body_from_request(action, path, request_args, swagger_parser):
 
     if ('Content-Type', 'multipart/form-data') not in headers:
         try:
-            body = json.dumps(body)
+            if body:
+                body = json.dumps(body)
         except TypeError as exc:
             logger.warning(u'Cannot decode body: {0}.'.format(repr(exc)))
     else:
@@ -170,20 +183,14 @@ def get_method_from_action(client, action):
     Returns:
         A flask client function.
     """
-    if action == 'get':
-        return client.get
-    elif action == 'post':
-        return client.post
-    elif action == 'put':
-        return client.put
-    elif action == 'delete':
-        return client.delete
-    elif action == 'patch':
-        return client.patch
+    error_msg = "Action '{0}' is not recognized; needs to be one of {1}.".format(action, str(_HTTP_METHODS))
+    assert action in _HTTP_METHODS, error_msg
+
+    return client.__getattribute__(action)
 
 
 def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                 wait_between_test=False, use_example=True):
+                 wait_time_between_tests=0, use_example=True):
     """Test the given swagger api.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -199,7 +206,7 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
                             }
                          }
                          Will ignore 404 when getting a pet.
-        wait_between_test: wait between tests (useful if you use ES).
+        wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
 
     Raises:
@@ -208,13 +215,13 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
     for _ in swagger_test_yield(swagger_yaml_path=swagger_yaml_path,
                                 app_url=app_url,
                                 authorize_error=authorize_error,
-                                wait_between_test=wait_between_test,
+                                wait_time_between_tests=wait_time_between_tests,
                                 use_example=use_example):
         pass
 
 
 def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                       wait_between_test=False, use_example=True):
+                       wait_time_between_tests=0, use_example=True):
     """Test the given swagger api. Yield the action and operation done for each test.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -230,7 +237,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                             }
                          }
                          Will ignore 404 when getting a pet.
-        wait_between_test: wait between tests (useful if you use Elasticsearch).
+        wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
 
     Returns:
@@ -243,57 +250,67 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
         authorize_error = {}
 
     # Init test
-    if swagger_yaml_path is not None:
-        app = connexion.App(__name__, port=8080, debug=True, specification_dir=os.path.dirname(os.path.realpath(swagger_yaml_path)))
+    if swagger_yaml_path is not None and app_url is not None:
+        app_client = requests
+        swagger_parser = SwaggerParser(swagger_yaml_path, use_example=use_example)
+    elif swagger_yaml_path is not None:
+        specification_dir = os.path.dirname(os.path.realpath(swagger_yaml_path))
+        app = connexion.App(__name__, port=8080, debug=True, specification_dir=specification_dir)
         app.add_api(os.path.basename(swagger_yaml_path))
         app_client = app.app.test_client()
         swagger_parser = SwaggerParser(swagger_yaml_path, use_example=use_example)
     elif app_url is not None:
         app_client = requests
-        swagger_parser = SwaggerParser(swagger_dict=requests.get(u'{0}/swagger.json'.format(app_url)).json(),
-                                       use_example=False)
+        remote_swagger_def = requests.get(u'{0}/swagger.json'.format(app_url)).json()
+        swagger_parser = SwaggerParser(swagger_dict=remote_swagger_def, use_example=use_example)
     else:
         raise ValueError('You must either specify a swagger.yaml path or an app url')
 
-    operation_sorted = {'post': [], 'get': [], 'put': [], 'patch': [], 'delete': []}
+    print ("Starting testrun against {0} or {1} using examples: "
+           "{2}".format(swagger_yaml_path, app_url, use_example))
+
+    operation_sorted = {method: [] for method in _HTTP_METHODS}
 
     # Sort operation by action
-    for operation, request in swagger_parser.operation.items():
+    operations = swagger_parser.operation.copy()
+    operations.update(swagger_parser.generated_operation)
+    for operation, request in operations.items():
         operation_sorted[request[1]].append((operation, request))
 
     postponed = []
 
     # For every operationId
-    for action in ['post', 'get', 'put', 'patch', 'delete']:
+    for action in _HTTP_METHODS:
         for operation in operation_sorted[action]:
             # Make request
             path = operation[1][0]
             action = operation[1][1]
+            client_name = getattr(app_client, '__name__', 'FlaskClient')
 
             request_args = get_request_args(path, action, swagger_parser)
             url, body, headers, files = get_url_body_from_request(action, path, request_args, swagger_parser)
 
-            logger.info(u'TESTING {0} {1}'.format(action.upper(), url))
-
-            if swagger_yaml_path is not None:
+            if swagger_yaml_path is not None and app_url is None:
                 response = get_method_from_action(app_client, action)(url, headers=headers,
                                                                       data=body)
             else:
-                response = get_method_from_action(app_client, action)(u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url),
+                full_path = u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url)
+                response = get_method_from_action(app_client, action)(full_path,
                                                                       headers=dict(headers),
                                                                       data=body,
                                                                       files=files)
 
-            logger.info(u'Got status code: {0}'.format(response.status_code))
+            logger.info(u'Using {0}, got status code {1} for ********** {2} {3}'.format(
+                client_name, response.status_code, action.upper(), url))
 
             # Check if authorize error
             if (action in authorize_error and path in authorize_error[action] and
                     response.status_code in authorize_error[action][path]):
-                logger.info(u'Got authorized error on {0} with status {1}'.format(url, response.status_code))
+                logger.info(u'Got expected authorized error on {0} with status {1}'.format(url, response.status_code))
                 yield (action, operation)
                 continue
 
-            if not response.status_code == 404:
+            if response.status_code is not 404:
                 # Get valid request and response body
                 body_req = swagger_parser.get_send_request_correct_body(path, action)
 
@@ -319,8 +336,6 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                 except ValueError:
                     response_json = response_text
 
-                assert response.status_code < 400
-
                 if response.status_code in response_spec.keys():
                     validate_definition(swagger_parser, response_spec[response.status_code], response_json)
                 elif 'default' in response_spec.keys():
@@ -329,8 +344,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                     raise AssertionError('Invalid status code {0}. Expected: {1}'.format(response.status_code,
                                                                                          response_spec.keys()))
 
-                if wait_between_test:  # Wait
-                    time.sleep(2)
+                if wait_time_between_tests > 0:
+                    time.sleep(wait_time_between_tests)
 
                 yield (action, operation)
             else:
