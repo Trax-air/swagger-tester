@@ -220,34 +220,6 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
         pass
 
 
-def _petstore_failed(response, full_path, action, url):
-    # if testing against PETSTORE API, it might happen, that some calls
-    # just don't work. in this case, we simply skip the call, what else
-    # could we do. indicators are code == 500 and type == unknown
-    has_problem = False
-    type = ''
-    message = ''
-    if response.status_code == 500 and 'petstore.swagger.io' in full_path:
-        try:
-            # if json() works, check that
-            type = response.json().get('type', '')
-            message = response.json().get('message', '')
-            if type == 'unknown' and message == 'something bad happened':
-                has_problem = True
-        except:
-            # if not even json() works, check the text
-            if 'unknown' in response.text:
-                has_problem = True
-                type = 'unknown'
-
-    if has_problem:
-        logging.warn("It appears that the public API petstore currently has a problem "
-                     "with {0} {1}".format(action.upper(), url))
-        logger.info("Response was {0} - {1} - {2}".format(response.status_code, type, message))
-
-    return has_problem
-
-
 def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None,
                        wait_time_between_tests=0, use_example=True):
     """Test the given swagger api. Yield the action and operation done for each test.
@@ -327,8 +299,6 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                                                                       headers=dict(headers),
                                                                       data=body,
                                                                       files=files)
-                if _petstore_failed(response, full_path, action, url):
-                    continue
 
             logger.info(u'Using {0}, got status code {1} for ********** {2} {3}'.format(
                 client_name, response.status_code, action.upper(), url))
