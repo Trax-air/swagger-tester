@@ -266,8 +266,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
     else:
         raise ValueError('You must either specify a swagger.yaml path or an app url')
 
-    print ("Starting testrun against {0} or {1} using examples: "
-           "{2}".format(swagger_yaml_path, app_url, use_example))
+    print("Starting testrun against {0} or {1} using examples: "
+          "{2}".format(swagger_yaml_path, app_url, use_example))
 
     operation_sorted = {method: [] for method in _HTTP_METHODS}
 
@@ -289,6 +289,8 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
 
             request_args = get_request_args(path, action, swagger_parser)
             url, body, headers, files = get_url_body_from_request(action, path, request_args, swagger_parser)
+
+            logger.info(u'TESTING {0} {1}'.format(action.upper(), url))
 
             if swagger_yaml_path is not None and app_url is None:
                 response = get_method_from_action(app_client, action)(url, headers=headers,
