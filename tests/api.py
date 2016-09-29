@@ -1,9 +1,6 @@
 """Api file for the pet example API.
 """
 
-import json
-
-
 pet = {
     'category': {
         'id': 42,
@@ -119,3 +116,7 @@ def updateUserEmail(username):
 
 def deleteUser(username=None):
     return ('', 204)
+
+
+def testHeaderPath():
+    return ('', 200)
