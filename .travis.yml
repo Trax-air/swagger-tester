@@ -3,8 +3,12 @@ env:
 - TOXENV=py34
 - TOXENV=py27
 - TOXENV=pypy
-install: pip install -U tox
-script: tox
+install:
+  pip install -U tox flake8
+before_script:
+  flake8 .
+script:
+  tox
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
