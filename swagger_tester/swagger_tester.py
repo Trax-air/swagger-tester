@@ -190,7 +190,8 @@ def get_method_from_action(client, action):
 
 
 def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                 wait_time_between_tests=0, use_example=True, dry_run=False):
+                 wait_time_between_tests=0, use_example=True, dry_run=False,
+                 extra_headers={}):
     """Test the given swagger api.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -209,6 +210,7 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
         wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
         dry_run: don't actually execute the test, only show what would be sent
+        extra_headers: additional headers you may want to send for all operations
 
     Raises:
         ValueError: In case you specify neither a swagger.yaml path or an app URL.
@@ -218,12 +220,14 @@ def swagger_test(swagger_yaml_path=None, app_url=None, authorize_error=None,
                                 authorize_error=authorize_error,
                                 wait_time_between_tests=wait_time_between_tests,
                                 use_example=use_example,
-                                dry_run=dry_run):
+                                dry_run=dry_run,
+                                extra_headers=extra_headers):
         pass
 
 
 def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=None,
-                       wait_time_between_tests=0, use_example=True, dry_run=False):
+                       wait_time_between_tests=0, use_example=True, dry_run=False,
+                       extra_headers={}):
     """Test the given swagger api. Yield the action and operation done for each test.
 
     Test with either a swagger.yaml path for a connexion app or with an API
@@ -242,6 +246,7 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
         wait_time_between_tests: an number that will be used as waiting time between tests [in seconds].
         use_example: use example of your swagger file instead of generated data.
         dry_run: don't actually execute the test, only show what would be sent
+        extra_headers: additional headers you may want to send for all operations
 
     Returns:
         Yield between each test: (action, operation)
@@ -294,6 +299,9 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
             url, body, headers, files = get_url_body_from_request(action, path, request_args, swagger_parser)
 
             logger.info(u'TESTING {0} {1}'.format(action.upper(), url))
+
+            # Add any extra headers specified by the user
+            headers.extend([(key, value)for key, value in extra_headers.items()])
 
             if swagger_yaml_path is not None and app_url is None:
                 if dry_run:

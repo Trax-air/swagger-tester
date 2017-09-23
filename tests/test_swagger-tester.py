@@ -57,6 +57,10 @@ def test_swagger_test_dont_use_example():
     swagger_test(swagger_yaml_path, use_example=False)
 
 
+def test_swagger_test_extra_headers():
+    swagger_test(swagger_yaml_path, extra_headers={'X-Header': 'Value'})
+
+
 def test_swagger_test_specify_app_url_use_example():
     conn = ConnexionProcess()
     conn.start()
