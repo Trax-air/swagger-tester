@@ -310,7 +310,11 @@ def swagger_test_yield(swagger_yaml_path=None, app_url=None, authorize_error=Non
                     continue
                 response = get_method_from_action(app_client, action)(url, headers=headers, data=body)
             else:
-                full_path = u'{0}{1}'.format(app_url.replace(swagger_parser.base_path, ''), url)
+                if app_url.endswith(swagger_parser.base_path):
+                    base_url = app_url[:-len(swagger_parser.base_path)]
+                else:
+                    base_url = app_url
+                full_path = u'{0}{1}'.format(base_url, url)
                 if dry_run:
                     logger.info("\nWould send %s to %s with body %s and headers %s" %
                                 (action.upper(), full_path, body, headers))
