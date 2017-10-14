@@ -69,6 +69,7 @@ def test_swagger_test_specify_app_url_use_example():
                  use_example=True)
     conn.terminate()
 
+
 def test_issue_51_fixed():
     conn = ConnexionProcess()
     conn.start()
