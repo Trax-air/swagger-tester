@@ -70,6 +70,14 @@ def test_swagger_test_specify_app_url_use_example():
     conn.terminate()
 
 
+def test_issue_51_fixed():
+    conn = ConnexionProcess()
+    conn.start()
+    swagger_test(app_url='http://v2@localhost:8080/v2',
+                 authorize_error=authorize_error)
+    conn.terminate()
+
+
 def test_swagger_test_specify_app_url_dont_use_example():
     conn = ConnexionProcess()
     conn.start()
