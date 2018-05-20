@@ -2,7 +2,6 @@ language: python
 python:
     - "3.4"
     - "2.7"
-    - pypy-5.4.1
 install:
   pip install -U flake8
 before_script:

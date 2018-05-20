@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pip.req import parse_requirements
 try:
     from setuptools import setup
 except ImportError:
@@ -14,8 +13,13 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [str(i.req) for i in parse_requirements('requirements.txt', session=False)]
-test_requirements = [str(i.req) for i in parse_requirements('requirements_dev.txt', session=False)]
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
+
+requirements = parse_requirements('requirements.txt')
+test_requirements = parse_requirements('requirements_dev.txt')
 
 setup(
     name='swagger_tester',
