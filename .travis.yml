@@ -20,3 +20,6 @@ deploy:
     branch: master
     repo: Trax-air/swagger-tester
     condition: $TOXENV == py27
+addons:
+    apt:
+      update: true
