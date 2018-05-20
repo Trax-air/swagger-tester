@@ -5,4 +5,4 @@ from .swagger_tester import swagger_test_yield  # noqa: F401
 
 __author__ = 'Cyprien Guillemot'
 __email__ = 'cyprien.guillemot@gmail.com'
-__version__ = '0.2.8'
+__version__ = '0.2.9'
