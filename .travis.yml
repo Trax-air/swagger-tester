@@ -4,11 +4,11 @@ python:
     - "2.7"
     - pypy-5.4.1
 install:
-  pip install -U tox flake8
+  pip install -U flake8
 before_script:
   flake8 .
 script:
-  tox
+   python setup.py test
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
