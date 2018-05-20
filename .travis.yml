@@ -19,7 +19,7 @@ deploy:
     tags: true
     branch: master
     repo: Trax-air/swagger-tester
-    condition: $TOXENV == py27
+    condition: $TRAVIS_PYTHON_VERSION == 2.7
 addons:
     apt:
       update: true
