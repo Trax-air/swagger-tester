@@ -19,7 +19,7 @@ test_requirements = [str(i.req) for i in parse_requirements('requirements_dev.tx
 
 setup(
     name='swagger_tester',
-    version='0.2.9',
+    version='0.2.10',
     description="Automatically test your swagger API",
     long_description=readme + '\n\n' + history,
     author="Cyprien Guillemot",
