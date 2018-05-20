@@ -23,7 +23,7 @@ test_requirements = parse_requirements('requirements_dev.txt')
 
 setup(
     name='swagger_tester',
-    version='0.2.10',
+    version='0.2.11',
     description="Automatically test your swagger API",
     long_description=readme + '\n\n' + history,
     author="Cyprien Guillemot",
